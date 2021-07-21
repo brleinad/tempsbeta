@@ -8,7 +8,10 @@ class AreasSpider(scrapy.Spider):
             ]
 
     def parse(self, response):
-        yield {'area': response.css('h1::text').extract_first()}
+        yield {
+          'area': response.css('h1::text').extract_first(),
+          'location': response.css('.description-details>tr:nth-child(2)>td:nth-child(2)::text ').extract_first()
+        }
         for next_area in response.css('.lef-nav-row>a::attr(href)'):
           yield response.follow(next_area, callback=self.parse)
 
