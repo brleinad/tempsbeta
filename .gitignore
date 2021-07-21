@@ -3,3 +3,4 @@
 
 # scraper outputs for now
 mp_scraper/*.jl
+mp_scraper/*.json
