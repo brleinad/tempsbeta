@@ -12,5 +12,5 @@ Getting the best temps beta.
 
 ```bash
 cd mp_scraper
-scrapy crawl areas -o areas.jl
+scrapy crawl areas -o areas.json
 ```
