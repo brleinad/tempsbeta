@@ -7,11 +7,14 @@ import os
 class AreasSpider(scrapy.Spider):
     name = 'areas'
     start_urls = [
-        # 'https://www.mountainproject.com/route-guide',
-        # 'https://www.mountainproject.com/area/106142016/quebec', # just for testing
-        # 'https://www.mountainproject.com/area/120619194/vallee-du-bras-du-nord', # just for testing
-        'https://www.mountainproject.com/area/110151418/mont-wright',
+        # 'https://www.mountainproject.com/route-guide', # the whole shebang
+        # just for testing
+        'https://www.mountainproject.com/area/106142016/quebec',
+        # 'https://www.mountainproject.com/area/120619194/vallee-du-bras-du-nord',
+        # 'https://www.mountainproject.com/area/110151418/mont-wright',
     ]
+    areas = None
+
 
     def __init__(self, category=None, *args, **kwargs):
         super(AreasSpider, self).__init__(*args, **kwargs)
@@ -24,9 +27,11 @@ class AreasSpider(scrapy.Spider):
         MONGODB_PASSWORD = os.environ["MONGODB_PASSWORD"]
         MONGODB_CLUSTER = os.environ["MONGODB_CLUSTER"]
         connection_string = f'mongodb+srv://{MONGODB_USER}:{MONGODB_PASSWORD}@{MONGODB_CLUSTER}?retryWrites=true&w=majority'
-        self.client = MongoClient(connection_string)
-        self.db = self.client.tempsbeta
-        self.areas = self.db.areas
+
+        client = MongoClient(connection_string)
+        self.areas = client.tempsbeta.areas
+        self.areas.delete_many({})
+
         print('MongoDB ready')
 
     def parse(self, response):
@@ -42,8 +47,11 @@ class AreasSpider(scrapy.Spider):
                 'coordinates': coordinates[::-1]
             },
         }
-        yield area
-        self.areas.insert_one(area)
+
+        if not self._is_there_a_nearby_area(area):
+            yield area
+            self.areas.insert_one(area)
+
         for next_area in response.css('.lef-nav-row>a::attr(href)'):
             yield response.follow(next_area, callback=self.parse)
 
@@ -52,3 +60,25 @@ class AreasSpider(scrapy.Spider):
         removes all new lines, spaces, tabs from a string
         """
         return ' '.join(string.split())
+
+    def _is_there_a_nearby_area(self, area):
+        """
+        is there already an area near the given area?
+        """
+        nearby_distance_in_meters = 1
+        print('AREA ', area)
+        query = {
+            'location':
+                {'$near':
+                    {
+                        '$geometry': {'type': 'Point', 'coordinates': area['location']['coordinates']},
+                        '$minDistance': nearby_distance_in_meters,
+                        '$maxDistance': nearby_distance_in_meters + 5000,
+                    }
+                }
+        }
+        results = self.areas.find_one(query)
+        print('RESULTS ', results)
+
+        return results
+
