@@ -14,10 +14,30 @@ async function main() {
   try {
     await client.connect();
     const areas = client.db('tempsbeta').collection('areas');
-    const query = { name: 'Mont Wright' };
+    // const del= await areas.deleteMany({}); // WARNING: delete all documents!!!
+    // console.log(del)
 
-    const climb = await areas.findOne(query);
-    console.log(climb);
+    const  minDistanceInMeters = 100;
+    const  maxDistanceInMeters = 10000;
+    const searchCoordinates = [ -71.317758, 46.923325 ]
+
+    // areas.createIndex( { location: "2dsphere" } ) only have to run once?
+    const query =
+      {
+        location:
+          { $near :
+              {
+                $geometry: { type: "Point",  coordinates: searchCoordinates },
+                $minDistance: minDistanceInMeters,
+                $maxDistance: maxDistanceInMeters,
+              }
+          }
+      };
+    console.log(JSON.stringify(query))
+
+
+    const nearbyAreas = await areas.find(query).toArray();
+    console.log(nearbyAreas);
 
   } catch(error) {
     console.error(error)
