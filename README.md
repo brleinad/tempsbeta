@@ -16,6 +16,5 @@ Getting the best temps beta.
 ## Crawling MP
 
 ```bash
-cd mp_scraper
 scrapy crawl areas -o areas.json
 ```
