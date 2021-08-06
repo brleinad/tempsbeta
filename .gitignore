@@ -7,3 +7,5 @@ mp_scraper/*.json
 
 .env
 **/.env
+
+node_modules
