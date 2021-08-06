@@ -33,6 +33,7 @@ class AreasSpider(scrapy.Spider):
         print(response.css('#route-chart'))
         coordinates = self.clean_string(response.css('.description-details>tr:nth-child(2)>td:nth-child(2)::text ').get())
         coordinates = coordinates.split(',')
+        coordinates = [float(numeric_string) for numeric_string in coordinates]
         area = {
             'name': self.clean_string(response.css('h1::text').get()),
             'url': response.url,
@@ -42,7 +43,6 @@ class AreasSpider(scrapy.Spider):
             },
         }
         yield area
-        # query = {'area': area['name']}
         self.areas.insert_one(area)
         for next_area in response.css('.lef-nav-row>a::attr(href)'):
             yield response.follow(next_area, callback=self.parse)
