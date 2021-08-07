@@ -30,7 +30,7 @@ class AreasSpider(scrapy.Spider):
 
         client = MongoClient(connection_string)
         self.areas = client.tempsbeta.areas
-        self.areas.delete_many({})
+        self.areas.delete_many({}) # TODO: find a way to not have to reset the DB every time?
 
         print('MongoDB ready')
 

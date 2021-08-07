@@ -11,17 +11,14 @@ async function main() {
   MONGODB_PASSWORD = process.env.MONGODB_PASSWORD;
   const uri = `mongodb+srv://${MONGODB_USER}:${MONGODB_PASSWORD}@${MONGODB_CLUSTER}?retryWrites=true&w=majority`;
   const client = new MongoClient(uri);
+  const  minDistanceInMeters = 100;
+  const  maxDistanceInMeters = 50000;
+  const searchCoordinates = [ -71.317758, 46.923325 ] // testing with somewhere in quebec
+
   try {
     await client.connect();
     const areas = client.db('tempsbeta').collection('areas');
-    // const del= await areas.deleteMany({}); // WARNING: delete all documents!!!
-    // console.log(del)
-
-    const  minDistanceInMeters = 100;
-    const  maxDistanceInMeters = 10000;
-    const searchCoordinates = [ -71.317758, 46.923325 ]
-
-    // areas.createIndex( { location: "2dsphere" } ) only have to run once?
+    // areas.createIndex( { location: "2dsphere" } ) only have to run the first time // TODO: move to scraper/backend?
     const query =
       {
         location:
@@ -33,7 +30,6 @@ async function main() {
               }
           }
       };
-    console.log(JSON.stringify(query))
 
 
     const nearbyAreas = await areas.find(query).toArray();
