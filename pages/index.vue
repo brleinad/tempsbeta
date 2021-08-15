@@ -1,5 +1,7 @@
 <template>
-  <ClimbingAreasList />
+  <div class="bg-noise h-screen">
+    <ClimbingAreasList />
+  </div>
 </template>
 
 <script lang="ts">

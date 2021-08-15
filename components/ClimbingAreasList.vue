@@ -1,9 +1,9 @@
 <template>
-  <main>
-    <h2>Temps</h2>
-  <ClimbingArea v-for="climbingArea in climbingAreas"
-                :climbingArea="climbingArea"
-  />
+  <main class="bg-noise">
+    <h1>Climbing Temps Beta</h1>
+    <ClimbingArea v-for="climbingArea in climbingAreas"
+                  :climbingArea="climbingArea"
+    />
   </main>
 </template>
 
